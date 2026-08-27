@@ -63,3 +63,6 @@ which = "8.0.3"
 
 [profile.release]
 lto = true
+
+[patch.crates-io]
+oci-spec = { path = "../oci-spec-rs" }

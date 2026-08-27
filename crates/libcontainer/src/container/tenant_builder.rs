@@ -79,20 +79,20 @@ fn get_capabilities(
         let mut capabilities_builder = LinuxCapabilitiesBuilder::default();
 
         let bounding: SpecCapabilities = match spec_caps.bounding() {
-            Some(bounding) => bounding.union(&caps).copied().collect(),
-            None => SpecCapabilities::new().union(&caps).copied().collect(),
+            Some(bounding) => bounding.union(&caps).cloned().collect(),
+            None => SpecCapabilities::new().union(&caps).cloned().collect(),
         };
         capabilities_builder = capabilities_builder.bounding(bounding);
 
         let effective: SpecCapabilities = match spec_caps.effective() {
-            Some(effective) => effective.union(&caps).copied().collect(),
-            None => SpecCapabilities::new().union(&caps).copied().collect(),
+            Some(effective) => effective.union(&caps).cloned().collect(),
+            None => SpecCapabilities::new().union(&caps).cloned().collect(),
         };
         capabilities_builder = capabilities_builder.effective(effective);
 
         let permitted: SpecCapabilities = match spec_caps.permitted() {
-            Some(permitted) => permitted.union(&caps).copied().collect(),
-            None => SpecCapabilities::new().union(&caps).copied().collect(),
+            Some(permitted) => permitted.union(&caps).cloned().collect(),
+            None => SpecCapabilities::new().union(&caps).cloned().collect(),
         };
         capabilities_builder = capabilities_builder.permitted(permitted);
 
@@ -103,8 +103,8 @@ fn get_capabilities(
         // Hence, we follow runc's code and set things similarly.
         let caps = if let Some(inheritable) = spec_caps.inheritable() {
             let ambient: SpecCapabilities = match spec_caps.ambient() {
-                Some(ambient) => ambient.union(&caps).copied().collect(),
-                None => SpecCapabilities::new().union(&caps).copied().collect(),
+                Some(ambient) => ambient.union(&caps).cloned().collect(),
+                None => SpecCapabilities::new().union(&caps).cloned().collect(),
             };
             capabilities_builder = capabilities_builder.ambient(ambient);
             capabilities_builder = capabilities_builder.inheritable(inheritable.clone());

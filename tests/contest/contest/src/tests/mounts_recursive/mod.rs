@@ -49,8 +49,8 @@ fn get_spec(added_mounts: Vec<Mount>, process_args: Vec<String>) -> Spec {
     let mut cap_permitted = HashSet::new();
 
     for cap in caps {
-        cap_bounding.insert(cap);
-        cap_effective.insert(cap);
+        cap_bounding.insert(cap.clone());
+        cap_effective.insert(cap.clone());
         cap_permitted.insert(cap);
     }
 

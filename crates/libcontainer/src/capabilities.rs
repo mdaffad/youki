@@ -9,23 +9,24 @@ fn to_set(caps: &Capabilities) -> CapsHashSet {
     let mut capabilities = CapsHashSet::new();
 
     for c in caps {
-        let cap = c.to_cap();
-        capabilities.insert(cap);
+        if let Some(cap) = c.to_cap() {
+            capabilities.insert(cap);
+        }
     }
     capabilities
 }
 
 pub trait CapabilityExt {
-    /// Convert self to caps::Capability
-    fn to_cap(&self) -> caps::Capability;
+    /// Convert self to caps::Capability, or `None` if this runtime does not know it
+    fn to_cap(&self) -> Option<caps::Capability>;
     /// Convert caps::Capability to self
     fn from_cap(c: CapsCapability) -> Self;
 }
 
 impl CapabilityExt for SpecCapability {
     /// Convert oci::runtime::Capability to caps::Capability
-    fn to_cap(&self) -> caps::Capability {
-        match self {
+    fn to_cap(&self) -> Option<caps::Capability> {
+        let cap = match self {
             SpecCapability::AuditControl => CapsCapability::CAP_AUDIT_CONTROL,
             SpecCapability::AuditRead => CapsCapability::CAP_AUDIT_READ,
             SpecCapability::AuditWrite => CapsCapability::CAP_AUDIT_WRITE,
@@ -67,7 +68,11 @@ impl CapabilityExt for SpecCapability {
             SpecCapability::SysTtyConfig => CapsCapability::CAP_SYS_TTY_CONFIG,
             SpecCapability::Syslog => CapsCapability::CAP_SYSLOG,
             SpecCapability::WakeAlarm => CapsCapability::CAP_WAKE_ALARM,
-        }
+            // reported by `unknown_capabilities` and ignored here, matching runc
+            SpecCapability::Unknown(_) => return None,
+        };
+
+        Some(cap)
     }
 
     /// Convert caps::Capability to oci::runtime::Capability
@@ -130,11 +135,42 @@ pub fn reset_effective<S: Syscall + ?Sized>(syscall: &S) -> Result<(), SyscallEr
     Ok(())
 }
 
+/// Names of the capabilities in `cs` that this runtime does not know, sorted and deduplicated
+fn unknown_capabilities(cs: &LinuxCapabilities) -> Vec<String> {
+    let mut unknown: Vec<String> = [
+        cs.bounding(),
+        cs.effective(),
+        cs.inheritable(),
+        cs.permitted(),
+        cs.ambient(),
+    ]
+    .into_iter()
+    .flatten()
+    .flatten()
+    .filter_map(|cap| match cap {
+        SpecCapability::Unknown(name) => Some(name.clone()),
+        _ => None,
+    })
+    .collect();
+
+    unknown.sort();
+    unknown.dedup();
+    unknown
+}
+
 /// Drop any extra granted capabilities, and reset to defaults which are in oci specification
 pub fn drop_privileges<S: Syscall + ?Sized>(
     cs: &LinuxCapabilities,
     syscall: &S,
 ) -> Result<(), SyscallError> {
+    let unknown = unknown_capabilities(cs);
+    if !unknown.is_empty() {
+        tracing::warn!(
+            "ignoring unknown or unavailable capabilities: [{}]",
+            unknown.join(", ")
+        );
+    }
+
     let empty_caps = Default::default();
     let bounding = cs.bounding().as_ref().unwrap_or(&empty_caps);
     tracing::debug!("dropping bounding capabilities to {:?}", bounding);
@@ -183,6 +219,31 @@ mod tests {
             .map(|(_capset, caps)| caps)
             .collect();
         assert_eq!(set_capability_args, vec![permitted_caps]);
+    }
+
+    #[test]
+    fn test_unknown_capabilities_are_reported_and_not_applied() {
+        let unknown = SpecCapability::Unknown("TEST_CAP".to_string());
+        let caps = LinuxCapabilitiesBuilder::default()
+            .bounding(HashSet::from([SpecCapability::Chown, unknown.clone()]))
+            .effective(HashSet::from([unknown.clone()]))
+            .build()
+            .unwrap();
+
+        // reported once, however many sets it appears in
+        assert_eq!(unknown_capabilities(&caps), vec!["TEST_CAP".to_string()]);
+
+        // and never reaches the syscall
+        let test_command = TestHelperSyscall::default();
+        assert!(drop_privileges(&caps, &test_command).is_ok());
+        for (_, applied) in test_command.get_set_capability_args() {
+            assert!(
+                !applied
+                    .iter()
+                    .any(|c| format!("{c:?}").contains("TEST_CAP"))
+            );
+        }
+        assert_eq!(to_set(caps.bounding().as_ref().unwrap()).len(), 1);
     }
 
     #[test]
@@ -361,8 +422,13 @@ mod tests {
 
         for test in tests {
             let got = test.input.to_cap();
-            assert_eq!(got, test.want);
+            assert_eq!(got, Some(test.want));
         }
+
+        assert_eq!(
+            SpecCapability::Unknown("TEST_CAP".to_string()).to_cap(),
+            None
+        );
     }
 
     #[test]
