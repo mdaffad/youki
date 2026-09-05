@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>This Documentation - Youki User and Developer Documentation</title>
+        <title>Adopters and Use Cases - Youki User and Developer Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -174,35 +174,32 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="this-documentation"><a class="header" href="#this-documentation">This Documentation</a></h1>
-<p>This documentation is created using mdbook and aims to provide a concise reference for users and developers of youki. For more information on mdbook itself, you can check out the <a href="https://rust-lang.github.io/mdBook/">mdbook documentation</a>.</p>
-<p>Please make sure that you update this documentation along with newly added features and resources that you found helpful while developing, so that it will be helpful for newcomers.</p>
-<p>Currently this documentation is hosted at <a href="https://youki-dev.github.io/youki/">https://youki-dev.github.io/youki/</a>, using GitHub pages. GitHub CI actions are used to automatically check if any files are changed in /docs on each push / PR merge to main branch, and if there are any changes, the mdbook is build and deployed to gh-pages. We use <a href="https://github.com/peaceiris/actions-mdbook">https://github.com/peaceiris/actions-mdbook</a> to build and then <a href="https://github.com/peaceiris/actions-gh-pages">https://github.com/peaceiris/actions-gh-pages</a> GitHub action to deploy the mdbook.</p>
-<p>When testing locally you can manually test the changes by running <code>mdbook serve</code> in the docs directory (after installing mdbook), which will temporarily serve the mdbook at <code>localhost:3000</code> by default. You can check the mdbook documentation for more information.<br>(If you are running inside a Dev Container, use <code>mdbook serve -n 0.0.0.0</code> instead)</p>
-<p>If you want to test it using gh-pages on your own fork, you can use following steps in the docs directory.</p>
-<pre><code class="language-console">git worktree prune
-# Do this if you are running this command first time after booting,
-# As after shutdown /tmp files are removed
-git branch -D gh-pages &amp;&amp; git worktree add /tmp/book -b gh-pages
-mdbook build
-rm -rf /tmp/book/* # this won't delete the .git directory
-cp -rp book/* /tmp/book/
-cd /tmp/book
-git add -A
-git commit 'new book message'
-git push -f origin gh-pages
-cd -
-</code></pre>
+                        <h1 id="adopters-and-use-cases"><a class="header" href="#adopters-and-use-cases">Adopters and Use Cases</a></h1>
+<p>This page collects public examples of projects that use youki or its crates.</p>
+<p>If you would like to add your project, please open a pull request with:</p>
+<ul>
+<li>project name and link</li>
+<li>a one-line summary</li>
+<li>crates being used, if you want to share them</li>
+</ul>
+<h2 id="rk8s"><a class="header" href="#rk8s"><a href="https://github.com/rk8s-dev/rk8s">rk8s</a></a></h2>
+<p>A lightweight Kubernetes-compatible container orchestration system written in Rust, implementing the Container Runtime Interface (CRI) with support for single containers, Kubernetes-style pods, and Docker Compose-style multi-container applications.</p>
+<p>Uses: <code>libcontainer</code>, <code>libcgroups</code></p>
+<h2 id="runwasi"><a class="header" href="#runwasi"><a href="https://github.com/containerd/runwasi">runwasi</a></a></h2>
+<p>A containerd shim that runs WebAssembly workloads in Docker and Kubernetes while using an OCI-compatible sandbox.</p>
+<p>Uses: <code>libcontainer</code></p>
+<h2 id="spinkube"><a class="header" href="#spinkube"><a href="https://www.spinkube.dev/">SpinKube</a></a></h2>
+<p>A platform for running Spin applications on Kubernetes. SpinKube uses <code>runwasi</code>, which in turn uses <code>libcontainer</code> to provide an OCI-compatible sandbox for workloads.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../developer/good_places_to_start.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../community/introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../developer/repo_structure.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../community/maintainer.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -212,11 +209,11 @@ cd -
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../developer/good_places_to_start.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../community/introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../developer/repo_structure.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../community/maintainer.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
